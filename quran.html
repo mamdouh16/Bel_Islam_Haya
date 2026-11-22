@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المصحف الصوتي والمزامنة - بالإسلام حياة</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">📖 بالإسلام حياة</a>
+      <ul class="nav-links">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="quran.html" class="active">المصحف الصوتي</a></li>
+        <li><a href="practice.html">التسميع والكتابة</a></li>
+        <li><a href="reciters.html">القراء</a></li>
+        <li><a href="contact.html">تواصل معنا</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="quran-box" id="quran-box">
+      <!-- شريط اختيار السورة والقارئ -->
+      <div class="quran-selector-bar">
+        <div>
+          <label for="surah-select"><strong>اختر السورة: </strong></label>
+          <select id="surah-select" class="select-control"></select>
+        </div>
+
+        <div>
+          <label for="reciter-select"><strong>اختر القارئ: </strong></label>
+          <select id="reciter-select" class="select-control"></select>
+        </div>
+      </div>
+
+      <!-- شريط أدوات المصحف: تكبير/تصغير الخط + التسميع المباشر + ملء الشاشة -->
+      <div class="mushaf-tools-bar">
+        <div class="tool-group">
+          <span style="font-weight: 700; color: var(--primary-color); font-size: 0.9rem;">حجم الخط:</span>
+          <button type="button" id="font-increase-btn" class="tool-btn" title="تكبير الخط">+A</button>
+          <button type="button" id="font-reset-btn" class="tool-btn secondary" title="الحجم الافتراضي">A</button>
+          <button type="button" id="font-decrease-btn" class="tool-btn" title="تصغير الخط">-A</button>
+        </div>
+
+        <div class="tool-group">
+          <button type="button" id="save-bookmark-btn" class="tool-btn" style="background-color: #266955;" title="تحديد وحفظ هذه الآية كآخر موضع وصلت إليه">
+            🔖 حفظ موضع القراءة
+          </button>
+          <a id="go-to-practice-btn" href="practice.html?surah=1" class="tool-btn gold">
+            ✍️ اختبر حفظك لهذه السورة
+          </a>
+          <button type="button" id="flip-sound-btn" class="tool-btn" title="تغيير مستوى صوت تقليب الصفحات (هادئ / متوسط / صامت)">🔉 صوت التقليب: هادئ</button>
+          <button type="button" id="fullscreen-btn" class="tool-btn">
+            ⛶ ملء الشاشة
+          </button>
+        </div>
+      </div>
+
+      <!-- رأس السورة -->
+      <div class="mushaf-header-frame">
+        <h2 id="current-surah-title">سورة الفاتحة</h2>
+        <p id="current-surah-info">مكية • عدد آياتها 7</p>
+      </div>
+
+      <!-- حاوية المصحف القابل للتقليب كالكتاب بين الصفحات والسور -->
+      <div class="mushaf-book-wrapper">
+        <div class="mushaf-book" id="mushaf-book">
+          <div class="mushaf-spine"></div>
+          <div class="turning-leaf" id="turning-leaf"></div>
+          <div class="mushaf-edge-hint right" title="اضغط للتقليب للصفحة السابقة">›</div>
+          <div class="mushaf-edge-hint left" title="اضغط للتقليب للصفحة التالية">‹</div>
+          <div class="mushaf-page quran-text" id="ayahs-container">
+            <p style="text-align: center; color: #777;">جاري فتح المصحف الشريف...</p>
+          </div>
+        </div>
+
+        <p class="touch-tip-badge">💡 يمكنك تقليب الصفحات عبر السحب باللمس، أو النقر على جانبي الصفحة، أو بالأزرار أدناه</p>
+        <!-- شريط تقليب الصفحات والسور -->
+        <div class="page-turn-controls">
+          <div class="page-nav-group">
+            <button type="button" id="prev-surah-btn" class="action-btn surah-jump-btn" title="السورة السابقة">
+              ⏭ السورة السابقة
+            </button>
+            <button type="button" id="prev-page-btn" class="action-btn page-nav-btn" disabled>
+              → الصفحة السابقة
+            </button>
+          </div>
+
+          <span id="page-indicator" class="page-indicator">صفحة 1 من 1</span>
+
+          <div class="page-nav-group">
+            <button type="button" id="next-page-btn" class="action-btn page-nav-btn" disabled>
+              الصفحة التالية ←
+            </button>
+            <button type="button" id="next-surah-btn" class="action-btn surah-jump-btn" title="السورة التالية">
+              السورة التالية ⏮
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- مشغل الصوت (آية بآية مع وقفة 5 ثوانٍ للترديد والتدبر) -->
+      <div class="audio-toolbar">
+        <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+          <span id="playing-now-info" style="font-weight: 600; color: var(--primary-color);">تلاوة سورة الفاتحة</span>
+          <span id="ayah-pause-status" style="font-size: 0.85rem; color: var(--accent-color); font-weight: 700;">
+            ⏱️ نظام التلقين والتدبر: وقفة 0.5 ثانية بين كل آية والتي تليها
+          </span>
+        </div>
+        <audio id="quran-audio" controls style="outline: none;">
+          <source id="audio-source" src="https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3" type="audio/mpeg">
+          متصفحك لا يدعم مشغل الصوت.
+        </audio>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>منصة بالإسلام حياة • نورٌ للقلوب، وسكينةٌ للأرواح، وحياةٌ بالقرآن الكريم © 2026</p>
+  </footer>
+
+  <script src="surahs.js"></script>
+  <script src="reciters.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بالإسلام حياة - القرآن الكريم كامل (114 سورة)</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">📖 بالإسلام حياة</a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">الرئيسية</a></li>
+        <li><a href="quran.html">المصحف الصوتي</a></li>
+        <li><a href="practice.html">التسميع والكتابة</a></li>
+        <li><a href="reciters.html">القراء</a></li>
+        <li><a href="contact.html">تواصل معنا</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>منصة "بالإسلام حياة" للقرآن الكريم</h1>
+      <p>منصة متكاملة تضم سور القرآن الكريم الـ 114 كاملة مع إمكانية الاستماع الصوتي لكبار القراء، والمتابعة البصرية بنظام الكتاب التفاعلي، والتدرب على الحفظ والتسميع.</p>
+      <div class="search-box">
+        <input type="text" id="search-surah" class="search-input" placeholder="ابحث باسم السورة أو رقمها (مثال: الكهف، 18)...">
+      </div>
+      <a href="quran.html" class="action-btn">فتح المصحف المرتل</a>
+    </section>
+
+    <!-- بطاقة متابعة القراءة من آخر آية توقفت عندها -->
+    <section id="resume-reading-banner" class="resume-banner" style="display: none;" aria-label="متابعة القراءة من آخر موضع">
+      <div class="resume-banner-info">
+        <span class="resume-badge">🔖 علامة التوقف المحفوظة</span>
+        <h3 id="resume-title">متابعة القراءة: سورة الفاتحة • الآية 1</h3>
+        <p id="resume-snippet" class="resume-snippet"></p>
+      </div>
+      <div class="resume-actions">
+        <a id="resume-link-btn" href="quran.html" class="action-btn resume-go-btn">▶️ متابعة من حيث توقفت</a>
+        <button type="button" id="clear-bookmark-btn" class="tool-btn secondary" title="حذف العلامة">✕</button>
+      </div>
+    </section>
+
+
+
+    <!-- قسم الأحاديث النبوية اليومية من صحيح البخاري وصحيح مسلم -->
+    <section class="hadith-section" aria-label="حديث اليوم من الصحيحين">
+      <div class="hadith-header">
+        <div class="hadith-title-group">
+          <h2>📜 حديث اليوم</h2>
+          <span id="hadith-source" class="hadith-source-badge">صحيح البخاري</span>
+        </div>
+        <div class="hadith-controls">
+          <button type="button" class="hadith-filter-btn active" data-book="all">الصحيحين</button>
+          <button type="button" class="hadith-filter-btn" data-book="bukhari">صحيح البخاري</button>
+          <button type="button" class="hadith-filter-btn" data-book="muslim">صحيح مسلم</button>
+        </div>
+      </div>
+
+      <p id="hadith-text" class="hadith-body">جاري تحميل الحديث الشريف...</p>
+
+      <div class="hadith-footer">
+        <span id="hadith-narrator" class="hadith-narrator"></span>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" id="copy-hadith-btn" class="tool-btn secondary">📋 نسخ الحديث</button>
+          <button type="button" id="next-hadith-btn" class="tool-btn gold">🔄 حديث آخر</button>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+      <h2 style="color: var(--primary-color);">فهرس القرآن الكريم كاملاً (114 سورة)</h2>
+      <span id="surahs-counter" style="color: #666; font-weight: bold;">114 سورة</span>
+    </div>
+
+    <div class="grid" id="surahs-grid">
+      <!-- Generated dynamically from surahs.js -->
+    </div>
+  </main>
+
+  <footer>
+    <p>منصة بالإسلام حياة • نورٌ للقلوب، وسكينةٌ للأرواح، وحياةٌ بالقرآن الكريم © 2026</p>
+  </footer>
+
+  <script src="surahs.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const grid = document.getElementById('surahs-grid');
+    const searchInput = document.getElementById('search-surah');
+    const counter = document.getElementById('surahs-counter');
+
+    function renderSurahs(list) {
+      grid.innerHTML = '';
+      counter.textContent = `${list.length} سورة`;
+      list.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div>
+            <div class="card-header">
+              <span class="surah-num">${s.number}</span>
+              <span style="font-size: 0.8rem; color: #888;">${s.type}</span>
+            </div>
+            <h3>سورة ${s.name}</h3>
+            <p class="card-meta">${s.ayahs} آيات • ${s.englishName}</p>
+          </div>
+          <a href="quran.html?surah=${s.number}" class="card-btn">استماع وقراءة</a>
+        `;
+        grid.appendChild(card);
+      });
+      if (window.observeRevealElements) window.observeRevealElements();
+    }
+
+    renderSurahs(ALL_SURAHS);
+
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const filtered = ALL_SURAHS.filter(s => 
+        s.name.includes(q) || 
+        s.number.toString() === q || 
+        s.englishName.toLowerCase().includes(q)
+      );
+      renderSurahs(filtered);
+    });
+  </script>
+</body>
+</html>

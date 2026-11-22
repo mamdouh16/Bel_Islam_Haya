@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مكتبة القراء الشاملة - بالإسلام حياة</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">📖 بالإسلام حياة</a>
+      <ul class="nav-links">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="quran.html">المصحف الصوتي</a></li>
+        <li><a href="practice.html">التسميع والكتابة</a></li>
+        <li><a href="reciters.html" class="active">القراء</a></li>
+        <li><a href="contact.html">تواصل معنا</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero" style="padding: 2.2rem 1.5rem;">
+      <h1>مكتبة كبار القراء في العالم الإسلامي</h1>
+      <p>اختر من بين نخبة من أشهر قراء القرآن الكريم بمختلف مدارس التلاوة (المرتل، المجود، أئمة الحرمين، والمدرسة المصرية) لتناسب ذائقتك في الاستماع والتدبر.</p>
+      <div class="search-box" style="margin-bottom: 1rem;">
+        <input type="text" id="search-reciter" class="search-input" placeholder="ابحث باسم القارئ أو الدولة (مثال: المنشاوي، المعيقلي، مصر)...">
+      </div>
+      <div class="hadith-controls" style="justify-content: center;">
+        <button type="button" class="hadith-filter-btn active" data-filter="all">جميع القراء</button>
+        <button type="button" class="hadith-filter-btn" data-filter="مرتل">المرتل</button>
+        <button type="button" class="hadith-filter-btn" data-filter="المجود">المجود</button>
+        <button type="button" class="hadith-filter-btn" data-filter="الحرم">أئمة الحرمين</button>
+        <button type="button" class="hadith-filter-btn" data-filter="مصر">المدرسة المصرية</button>
+      </div>
+    </section>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+      <h2 style="color: var(--primary-color);">دليل القراء المعتمدين</h2>
+      <span id="reciters-counter" style="color: #666; font-weight: bold;">24 قارئاً</span>
+    </div>
+
+    <div class="grid" id="reciters-grid" style="grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));">
+      <!-- Generated dynamically from reciters.js -->
+    </div>
+  </main>
+
+  <footer>
+    <p>منصة بالإسلام حياة • نورٌ للقلوب، وسكينةٌ للأرواح، وحياةٌ بالقرآن الكريم © 2026</p>
+  </footer>
+
+  <script src="reciters.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const recitersGrid = document.getElementById('reciters-grid');
+    const searchReciterInput = document.getElementById('search-reciter');
+    const recitersCounter = document.getElementById('reciters-counter');
+    const filterButtons = document.querySelectorAll('.hadith-filter-btn');
+
+    let activeCategory = 'all';
+
+    function renderReciters(list) {
+      recitersGrid.innerHTML = '';
+      recitersCounter.textContent = `${list.length} قارئ`;
+
+      list.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div>
+            <div class="card-header">
+              <span class="surah-num">${r.country}</span>
+              <span style="font-size: 0.8rem; color: var(--secondary-color); font-weight: 700;">${r.style}</span>
+            </div>
+            <h3 style="margin-bottom: 0.4rem;">${r.name}</h3>
+            <p class="card-meta">${r.bio}</p>
+          </div>
+          <a href="quran.html?reciter=${r.id}" class="card-btn">🎧 الاستماع في المصحف</a>
+        `;
+        recitersGrid.appendChild(card);
+      });
+
+      if (window.observeRevealElements) window.observeRevealElements();
+    }
+
+    function filterReciters() {
+      const q = searchReciterInput.value.trim().toLowerCase();
+      const filtered = ALL_RECITERS.filter(r => {
+        const matchesSearch = r.name.toLowerCase().includes(q) ||
+                              r.country.toLowerCase().includes(q) ||
+                              r.style.toLowerCase().includes(q);
+        const matchesCat = activeCategory === 'all' ||
+                           r.style.includes(activeCategory) ||
+                           r.country.includes(activeCategory);
+        return matchesSearch && matchesCat;
+      });
+      renderReciters(filtered);
+    }
+
+    renderReciters(ALL_RECITERS);
+
+    searchReciterInput.addEventListener('input', filterReciters);
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCategory = btn.getAttribute('data-filter');
+        filterReciters();
+      });
+    });
+  </script>
+</body>
+</html>

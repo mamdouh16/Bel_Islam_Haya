@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>التسميع الدقيق والتصحيح التلقائي - بالإسلام حياة</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">📖 بالإسلام حياة</a>
+      <ul class="nav-links">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="quran.html">المصحف الصوتي</a></li>
+        <li><a href="practice.html" class="active">التسميع والكتابة</a></li>
+        <li><a href="reciters.html">القراء</a></li>
+        <li><a href="contact.html">تواصل معنا</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="quran-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+        <h2 style="color: var(--primary-color);">لوحة التدقيق الدقيق والتصحيح التلقائي</h2>
+        <a id="back-to-mushaf-btn" href="quran.html?surah=112" class="tool-btn gold">📖 العودة لقراءة السورة في المصحف</a>
+      </div>
+      <p style="margin-bottom: 1.2rem; color: #555;">
+        اختر نطاق التسميع (<strong>آية آية</strong> أو <strong>صفحة صفحة</strong> أو <strong>السورة كاملة</strong>) وطريقة الإدخال (<strong>بالصوت</strong> أو <strong>بالكتابة</strong>)؛ وسيقوم النظام بكشف الأخطاء وتصحيحها تلقائياً بدون اشتراط الحركات:
+      </p>
+
+      <!-- إعدادات النطاق: السورة + نوع التسميع (آية/صفحة/سورة) + رقم الآية أو الصفحة -->
+      <div class="scope-controls-grid">
+        <div class="scope-field">
+          <label for="practice-surah-select">1. اختر السورة:</label>
+          <select id="practice-surah-select" class="select-control"></select>
+        </div>
+
+        <div class="scope-field">
+          <label for="practice-scope-select">2. نظام التدقيق:</label>
+          <select id="practice-scope-select" class="select-control">
+            <option value="ayah">آية آية (تدقيق دقيق لكل آية)</option>
+            <option value="page">صفحة صفحة (حسب صفحات المصحف)</option>
+            <option value="surah">السورة كاملة</option>
+          </select>
+        </div>
+
+        <div class="scope-field" id="unit-selector-wrapper">
+          <label for="practice-unit-select" id="unit-selector-label">3. اختر الآية:</label>
+          <select id="practice-unit-select" class="select-control"></select>
+        </div>
+      </div>
+
+      <!-- شريط يوضح المطلوب تسميعه حالياً وأزرار الانتقال للآية/الصفحة التالية -->
+      <div class="target-hint-banner">
+        <span id="current-scope-title">المطلوب تسميعه: سورة الإخلاص • الآية (1)</span>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" id="prev-unit-btn" class="tool-btn secondary" disabled>→ السابق</button>
+          <button type="button" id="next-unit-btn" class="tool-btn" disabled>التالي ←</button>
+        </div>
+      </div>
+
+      <!-- اختيار طريقة التسميع: كتابة يدوية أو صوت -->
+      <div class="mode-switcher-bar" role="tablist" aria-label="طريقة التسميع">
+        <button type="button" id="mode-typing-btn" class="mode-tab-btn active">⌨️ الكتابة اليدوية</button>
+        <button type="button" id="mode-voice-btn" class="mode-tab-btn">🎙️ التسميع بالصوت</button>
+      </div>
+
+      <!-- لوحة التسميع الصوتي -->
+      <div id="voice-panel" class="voice-recorder-panel">
+        <div>
+          <strong style="color: var(--primary-color); display: block; margin-bottom: 0.2rem;">🎙️ التسميع الصوتي المباشر (ميكروفون)</strong>
+          <span id="voice-status-text" style="font-size: 0.9rem; color: #555;">اضغط على زر "ابدأ التسميع الصوتي" واقرأ الآية أو الصفحة بصوت واضح.</span>
+        </div>
+        <button type="button" id="toggle-mic-btn" class="mic-btn">🎤 ابدأ التسميع الصوتي</button>
+      </div>
+
+      <div class="practice-container">
+        <textarea id="user-input" class="practice-area" placeholder="اكتب النص القرآني هنا بدون حركات أو تشكيل، أو استخدم الميكروفون..."></textarea>
+        
+        <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+          <button id="verify-btn" class="action-btn">🔍 تدقيق واكتشاف الأخطاء</button>
+          <button id="autocorrect-btn" class="action-btn" style="background-color: #C5A059; color: #11352A; font-weight: 700; display: none;">✨ تصحيح أخطائي تلقائياً</button>
+          <button id="reset-btn" class="action-btn" style="background-color: #888;">🔄 مسح وإعادة</button>
+        </div>
+
+        <div id="result-box" style="padding: 1.2rem; border-radius: 10px; display: none;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>منصة بالإسلام حياة • نورٌ للقلوب، وسكينةٌ للأرواح، وحياةٌ بالقرآن الكريم © 2026</p>
+  </footer>
+
+  <script src="surahs.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const verifyBtn = document.getElementById('verify-btn');
+    const autoCorrectBtn = document.getElementById('autocorrect-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const userInput = document.getElementById('user-input');
+    const resultBox = document.getElementById('result-box');
+
+    const surahSelect = document.getElementById('practice-surah-select');
+    const scopeSelect = document.getElementById('practice-scope-select');
+    const unitSelect = document.getElementById('practice-unit-select');
+    const unitWrapper = document.getElementById('unit-selector-wrapper');
+    const unitLabel = document.getElementById('unit-selector-label');
+    const scopeTitleEl = document.getElementById('current-scope-title');
+    const prevUnitBtn = document.getElementById('prev-unit-btn');
+    const nextUnitBtn = document.getElementById('next-unit-btn');
+    const backToMushafBtn = document.getElementById('back-to-mushaf-btn');
+
+    const modeTypingBtn = document.getElementById('mode-typing-btn');
+    const modeVoiceBtn = document.getElementById('mode-voice-btn');
+    const voicePanel = document.getElementById('voice-panel');
+    const toggleMicBtn = document.getElementById('toggle-mic-btn');
+    const voiceStatusText = document.getElementById('voice-status-text');
+
+    let loadedAyahs = []; // [{ numberInSurah, text }]
+    let loadedPages = []; // [[ayahObj, ...], ...]
+    let currentTargetDisplay = ""; // النص الصحيح الأصلي للعرض والتصحيح التلقائي
+    let recognition = null;
+    let isRecording = false;
+    let finalTranscriptStore = "";
+
+    // تعبئة السور الـ 114
+    ALL_SURAHS.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.number;
+      opt.textContent = `${s.number}. سورة ${s.name} (${s.ayahs} آية)`;
+      surahSelect.appendChild(opt);
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const surahParam = parseInt(urlParams.get('surah'));
+    const initialSurah = (surahParam >= 1 && surahParam <= 114) ? surahParam : 112;
+    surahSelect.value = initialSurah;
+
+    // تطبيع النص القرآني لإزالة الحركات وتوحيد الإملاء
+    function normalizeQuranText(str) {
+      if (!str) return "";
+      let s = str
+        .replace(/[ً-ٰٟۖ-ۭـ]/g, '')
+        .replace(/[﴿﴾()\[\]{}«».,،؛:؟!0-9٠-٩]/g, ' ')
+        .replace(/[إأآٱٲٳ]/g, 'ا')
+        .replace(/[ؤئء]/g, '')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي');
+
+      const orthographyMap = [
+        [/الرحمان/g, 'الرحمن'],
+        [/الصلوه/g, 'الصلاه'],
+        [/الزكوه/g, 'الزكاه'],
+        [/الحيوه/g, 'الحياه'],
+        [/الغدوه/g, 'الغداه'],
+        [/مشكوه/g, 'مشكاه'],
+        [/نجوه/g, 'نجاه'],
+        [/منوه/g, 'مناه'],
+        [/السموات/g, 'السماوات'],
+        [/سموات/g, 'سماوات'],
+        [/ابرهيم/g, 'ابراهيم'],
+        [/اسمعيل/g, 'اسماعيل'],
+        [/اسحق/g, 'اسحاق'],
+        [/سليمن/g, 'سليمان'],
+        [/لقمن/g, 'لقمان'],
+        [/عثمن/g, 'عثمان'],
+        [/شيطن/g, 'شيطان'],
+        [/الشيطن/g, 'الشيطان'],
+        [/سلطن/g, 'سلطان'],
+        [/قرءان/g, 'قران'],
+        [/القرءان/g, 'القران'],
+        [/يايها/g, 'يا ايها'],
+        [/هاؤلاء/g, 'هؤلاء'],
+        [/اولئك/g, 'اوليك'],
+        [/ذلك/g, 'ذالك'],
+        [/لكن/g, 'لاكن']
+      ];
+
+      orthographyMap.forEach(([pattern, replacement]) => {
+        s = s.replace(pattern, replacement);
+      });
+
+      return s.replace(/\s+/g, ' ').trim();
+    }
+
+    // تقسيم آيات السورة إلى صفحات بنفس معيار المصحف (650 حرف)
+    function buildPages(ayahs) {
+      const pages = [];
+      let currentPage = [];
+      let charCount = 0;
+      const MAX_CHARS = 650;
+
+      ayahs.forEach(a => {
+        if (charCount > 0 && (charCount + a.text.length > MAX_CHARS)) {
+          pages.push(currentPage);
+          currentPage = [];
+          charCount = 0;
+        }
+        currentPage.push(a);
+        charCount += a.text.length;
+      });
+      if (currentPage.length > 0) pages.push(currentPage);
+      return pages;
+    }
+
+    function updateUnitDropdown() {
+      const scope = scopeSelect.value;
+      const surahData = ALL_SURAHS.find(s => s.number === parseInt(surahSelect.value));
+      const surahName = surahData ? surahData.name : '';
+
+      unitSelect.innerHTML = '';
+      if (scope === 'ayah') {
+        unitWrapper.style.display = 'flex';
+        unitLabel.textContent = '3. اختر رقم الآية:';
+        loadedAyahs.forEach((a, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          const preview = a.text.split(' ').slice(0, 4).join(' ');
+          opt.textContent = `الآية (${a.numberInSurah}) — ${preview}...`;
+          unitSelect.appendChild(opt);
+        });
+      } else if (scope === 'page') {
+        unitWrapper.style.display = 'flex';
+        unitLabel.textContent = '3. اختر رقم الصفحة:';
+        loadedPages.forEach((p, idx) => {
+          const firstAyah = p[0].numberInSurah;
+          const lastAyah = p[p.length - 1].numberInSurah;
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `صفحة (${idx + 1} من ${loadedPages.length}) — الآيات ${firstAyah} إلى ${lastAyah}`;
+          unitSelect.appendChild(opt);
+        });
+      } else {
+        unitWrapper.style.display = 'none';
+      }
+
+      updateCurrentTarget();
+    }
+
+    function updateCurrentTarget() {
+      const scope = scopeSelect.value;
+      const surahNum = parseInt(surahSelect.value);
+      const surahData = ALL_SURAHS.find(s => s.number === surahNum);
+      const surahName = surahData ? surahData.name : '';
+
+      userInput.value = '';
+      finalTranscriptStore = '';
+      userInput.classList.remove('success-glow', 'shake-error');
+      resultBox.style.display = 'none';
+      autoCorrectBtn.style.display = 'none';
+
+      if (scope === 'ayah' && loadedAyahs.length > 0) {
+        const idx = parseInt(unitSelect.value) || 0;
+        const ayahObj = loadedAyahs[idx];
+        currentTargetDisplay = ayahObj.text;
+        scopeTitleEl.textContent = `المطلوب تسميعه: سورة ${surahName} • الآية (${ayahObj.numberInSurah} من ${loadedAyahs.length})`;
+        backToMushafBtn.href = `quran.html?surah=${surahNum}&ayah=${ayahObj.numberInSurah}`;
+        prevUnitBtn.disabled = idx <= 0;
+        nextUnitBtn.disabled = idx >= loadedAyahs.length - 1;
+      } else if (scope === 'page' && loadedPages.length > 0) {
+        const pIdx = parseInt(unitSelect.value) || 0;
+        const pageAyahs = loadedPages[pIdx];
+        currentTargetDisplay = pageAyahs.map(a => a.text).join(' ');
+        const firstA = pageAyahs[0].numberInSurah;
+        const lastA = pageAyahs[pageAyahs.length - 1].numberInSurah;
+        scopeTitleEl.textContent = `المطلوب تسميعه: سورة ${surahName} • صفحة (${pIdx + 1} من ${loadedPages.length}) [الآيات ${firstA} - ${lastA}]`;
+        backToMushafBtn.href = `quran.html?surah=${surahNum}&ayah=${firstA}`;
+        prevUnitBtn.disabled = pIdx <= 0;
+        nextUnitBtn.disabled = pIdx >= loadedPages.length - 1;
+      } else {
+        currentTargetDisplay = loadedAyahs.map(a => a.text).join(' ');
+        scopeTitleEl.textContent = `المطلوب تسميعه: سورة ${surahName} كاملة (${loadedAyahs.length} آية)`;
+        backToMushafBtn.href = `quran.html?surah=${surahNum}`;
+        prevUnitBtn.disabled = true;
+        nextUnitBtn.disabled = true;
+      }
+    }
+
+    function fetchSurahForPractice(surahNum) {
+      scopeTitleEl.textContent = 'جاري تحميل آيات السورة...';
+      fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/quran-simple`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.code === 200 && data.data && data.data.ayahs) {
+            loadedAyahs = data.data.ayahs.map((a, idx) => {
+              let t = a.text;
+              if (surahNum != 1 && idx === 0 && t.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")) {
+                t = t.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
+              }
+              return { numberInSurah: idx + 1, text: t };
+            });
+            loadedPages = buildPages(loadedAyahs);
+            updateUnitDropdown();
+          }
+        })
+        .catch(() => {
+          scopeTitleEl.textContent = 'تعذر الاتصال لجلب السورة، تأكد من اتصال الإنترنت.';
+        });
+    }
+
+    fetchSurahForPractice(initialSurah);
+
+    surahSelect.addEventListener('change', (e) => {
+      stopVoiceRecognition();
+      fetchSurahForPractice(parseInt(e.target.value));
+    });
+
+    scopeSelect.addEventListener('change', () => {
+      stopVoiceRecognition();
+      updateUnitDropdown();
+    });
+
+    unitSelect.addEventListener('change', () => {
+      stopVoiceRecognition();
+      updateCurrentTarget();
+    });
+
+    prevUnitBtn.addEventListener('click', () => {
+      const cur = parseInt(unitSelect.value) || 0;
+      if (cur > 0) {
+        unitSelect.value = cur - 1;
+        updateCurrentTarget();
+      }
+    });
+
+    nextUnitBtn.addEventListener('click', () => {
+      const cur = parseInt(unitSelect.value) || 0;
+      if (cur < unitSelect.options.length - 1) {
+        unitSelect.value = cur + 1;
+        updateCurrentTarget();
+      }
+    });
+
+    // التبديل بين الكتابة اليدوية والصوت
+    modeTypingBtn.addEventListener('click', () => {
+      modeTypingBtn.classList.add('active');
+      modeVoiceBtn.classList.remove('active');
+      voicePanel.classList.remove('visible');
+      stopVoiceRecognition();
+      userInput.focus();
+    });
+
+    modeVoiceBtn.addEventListener('click', () => {
+      modeVoiceBtn.classList.add('active');
+      modeTypingBtn.classList.remove('active');
+      voicePanel.classList.add('visible');
+    });
+
+    // التعرف على الصوت (Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function stopVoiceRecognition() {
+      if (recognition && isRecording) {
+        isRecording = false;
+        try { recognition.stop(); } catch (e) {}
+      }
+      toggleMicBtn.classList.remove('recording');
+      toggleMicBtn.innerHTML = '🎤 ابدأ التسميع الصوتي';
+    }
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ar-SA';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isRecording = true;
+        finalTranscriptStore = userInput.value.trim();
+        toggleMicBtn.classList.add('recording');
+        toggleMicBtn.innerHTML = '⏹️ إيقاف التسجيل الصوتي';
+        voiceStatusText.textContent = '🔴 جاري الاستماع لتلاوتك... اقرأ الآن وسيتم تدوينها مباشرة.';
+      };
+
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscriptStore = (finalTranscriptStore + ' ' + transcript).trim();
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        userInput.value = (finalTranscriptStore + ' ' + interimTranscript).trim();
+      };
+
+      recognition.onerror = (event) => {
+        stopVoiceRecognition();
+        voiceStatusText.textContent = event.error === 'not-allowed'
+          ? '⚠️ يرجى السماح للمتصفح بالوصول إلى الميكروفون.'
+          : '⚠️ توقف التسجيل الصوتي، يمكنك المتابعة أو الكتابة يدوياً.';
+      };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          try { recognition.start(); } catch (e) { stopVoiceRecognition(); }
+        } else {
+          toggleMicBtn.classList.remove('recording');
+          toggleMicBtn.innerHTML = '🎤 ابدأ التسميع الصوتي';
+          voiceStatusText.textContent = '✅ تم إيقاف التسجيل. اضغط على "تدقيق واكتشاف الأخطاء" للمراجعة.';
+        }
+      };
+
+      toggleMicBtn.addEventListener('click', () => {
+        if (isRecording) {
+          isRecording = false;
+          recognition.stop();
+        } else {
+          try { recognition.start(); } catch (e) {}
+        }
+      });
+    } else {
+      toggleMicBtn.disabled = true;
+      toggleMicBtn.style.background = '#888';
+      voiceStatusText.textContent = '⚠️ متصفحك الحالي لا يدعم التسميع الصوتي، يرجى استخدام Chrome أو Edge أو الكتابة اليدوية.';
+    }
+
+    // زر التصحيح التلقائي: يستبدل النص في حقل الكتابة بالنص القرآني الصحيح
+    autoCorrectBtn.addEventListener('click', () => {
+      const cleanCorrected = normalizeQuranText(currentTargetDisplay);
+      userInput.value = cleanCorrected;
+      finalTranscriptStore = cleanCorrected;
+      userInput.classList.remove('shake-error');
+      userInput.classList.add('success-glow');
+      autoCorrectBtn.style.display = 'none';
+
+      resultBox.style.display = 'block';
+      resultBox.style.backgroundColor = '#d4edda';
+      resultBox.style.color = '#155724';
+      resultBox.innerHTML = `
+        <strong>✨ تم التصحيح التلقائي بنجاح!</strong><br>
+        النص الصحيح بدون حركات: <span style="font-family: 'Amiri', serif; font-size: 1.35rem;">«${cleanCorrected}»</span>
+      `;
+    });
+
+    // التدقيق الدقيق كلمة بكلمة مع كشف الأخطاء وتحديد الكلمة الخطأ والكلمة الصحيحة
+    verifyBtn.addEventListener('click', () => {
+      stopVoiceRecognition();
+      const targetNorm = normalizeQuranText(currentTargetDisplay);
+      const inputNorm = normalizeQuranText(userInput.value);
+
+      resultBox.style.display = 'block';
+
+      if (!inputNorm) {
+        userInput.classList.remove('success-glow', 'shake-error');
+        void userInput.offsetWidth;
+        userInput.classList.add('shake-error');
+        autoCorrectBtn.style.display = 'none';
+        resultBox.style.backgroundColor = '#fff3cd';
+        resultBox.style.color = '#856404';
+        resultBox.innerHTML = '<strong>تنبيه:</strong> يرجى كتابة الآية أو قراءتها بالصوت أولاً.';
+        return;
+      }
+
+      const targetWords = targetNorm.split(' ').filter(Boolean);
+      const inputWords = inputNorm.split(' ').filter(Boolean);
+
+      let matchedCount = 0;
+      let inputPtr = 0;
+      const mistakesList = [];
+      const visualComparisonParts = [];
+
+      for (let i = 0; i < targetWords.length; i++) {
+        const expectedWord = targetWords[i];
+        const userWord = inputWords[inputPtr];
+
+        if (userWord === expectedWord) {
+          matchedCount++;
+          visualComparisonParts.push(`<span class="word-ok">${expectedWord}</span>`);
+          inputPtr++;
+        } else {
+          // التحقق هل الكلمة موجودة بعد قليل (أي أن المستخدم نسي كلمة) أم أنه كتب كلمة خاطئة مكانها
+          let lookaheadFound = -1;
+          for (let k = 1; k <= 3; k++) {
+            if (inputWords[inputPtr + k] === expectedWord) {
+              lookaheadFound = k;
+              break;
+            }
+          }
+
+          if (lookaheadFound !== -1) {
+            // المستخدم نسي هذه الكلمة
+            mistakesList.push(`نقص في الكلمة رقم (${i + 1}): الكلمة الصحيحة هي <strong>«${expectedWord}»</strong>`);
+            visualComparisonParts.push(`<span class="word-missing" title="كلمة ناقصة">${expectedWord}</span>`);
+          } else if (userWord !== undefined) {
+            // المستخدم كتب كلمة مختلفة/خاطئة مكان الكلمة الصحيحة
+            mistakesList.push(`خطأ في الموضع (${i + 1}): كتبت <span style="color:#b02a37;font-weight:bold;">«${userWord}»</span> والصواب <strong>«${expectedWord}»</strong>`);
+            visualComparisonParts.push(`<span class="word-wrong" title="كلمة خاطئة">${userWord}</span><span class="word-correction-badge">${expectedWord}</span>`);
+            inputPtr++;
+          } else {
+            // توقف المستخدم قبل إكمال الباقي
+            mistakesList.push(`لم تُكمل الكلمة رقم (${i + 1}): <strong>«${expectedWord}»</strong>`);
+            visualComparisonParts.push(`<span class="word-missing" title="لم تُكتب بعد">${expectedWord}</span>`);
+          }
+        }
+      }
+
+      // التحقق من وجود كلمات زائدة في نهاية كلام المستخدم
+      while (inputPtr < inputWords.length) {
+        const extraW = inputWords[inputPtr];
+        mistakesList.push(`كلمة زائدة: <span style="color:#b02a37;font-weight:bold;">«${extraW}»</span> ليست في هذا الموضع`);
+        visualComparisonParts.push(`<span class="word-wrong" title="كلمة زائدة">${extraW}</span>`);
+        inputPtr++;
+      }
+
+      const accuracy = Math.max(0, Math.round((matchedCount / targetWords.length) * 100));
+
+      if (mistakesList.length === 0) {
+        userInput.classList.remove('shake-error');
+        userInput.classList.add('success-glow');
+        autoCorrectBtn.style.display = 'none';
+        resultBox.style.backgroundColor = '#d4edda';
+        resultBox.style.color = '#155724';
+        resultBox.innerHTML = `
+          <strong>ما شاء الله! تسميع متقن بنسبة 100% ✅</strong><br>
+          جميع الكلمات صحيحة ومطابقة تماماً (بدون اشتراط الحركات). بارك الله فيك!
+        `;
+      } else {
+        userInput.classList.remove('success-glow', 'shake-error');
+        void userInput.offsetWidth;
+        userInput.classList.add('shake-error');
+        autoCorrectBtn.style.display = 'inline-block';
+        resultBox.style.backgroundColor = '#fff3cd';
+        resultBox.style.color = '#856404';
+
+        const mistakesHtml = mistakesList.slice(0, 8).map(m => `<li>${m}</li>`).join('');
+        const moreNote = mistakesList.length > 8 ? `<li>... وهناك (${mistakesList.length - 8}) ملاحظات أخرى موضحة في النص أعلاه.</li>` : '';
+
+        resultBox.innerHTML = `
+          <strong>نتيجة التدقيق — نسبة الدقة: ${accuracy}% (${matchedCount} من ${targetWords.length} كلمة صحيحة)</strong>
+          <div class="word-diff-container">${visualComparisonParts.join(' ')}</div>
+          <div class="mistakes-summary-list">
+            <strong style="color: #842029;">📋 تفاصيل الأخطاء المكتشفة:</strong>
+            <ul>${mistakesHtml}${moreNote}</ul>
+          </div>
+        `;
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopVoiceRecognition();
+      userInput.value = '';
+      finalTranscriptStore = '';
+      userInput.classList.remove('success-glow', 'shake-error');
+      resultBox.style.display = 'none';
+      autoCorrectBtn.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
